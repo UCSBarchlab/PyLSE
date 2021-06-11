@@ -26,6 +26,6 @@ To install PyLSE, do the following from the current directory.
 The above commands have been tested to work with Python 3.8 and Python 3.9. If you have one or both of those installed, you may need to replace the `pip3` commands above with `pip3.8` or `pip3.9`, respectively, for a more targeted installation.
 
 ## Contact
-For general questions feel free to reach out to [Archlab @ UCSB](https://www.arch.cs.ucsb.edu/).
+For general questions, feel free to reach out to [Archlab @ UCSB](https://www.arch.cs.ucsb.edu/).
 
 For immediate help with PyLSE, contact Michael (mchristensen@ucsb.edu) and George (gtzimpragos@ucsb.edu).
