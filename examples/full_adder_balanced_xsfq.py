@@ -1,5 +1,4 @@
-# Reference: G. Tzimpragos et al.,
-# "Superconducting Computing with Alternating Logic Elements," ISCA 2021.
+# Reference: G. Tzimpragos et al., "Superconducting Computing with Alternating Logic Elements," ISCA 2021.
 
 from pylse import inp, inp_at, inspect, Simulation
 from pylse import c_inv, c, s, jtl, dro, split
