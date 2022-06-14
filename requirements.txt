@@ -1,5 +1,10 @@
 pep8
 pylint
+pycodestyle
 nose
 coverage
 matplotlib
+dash
+dash-cytoscape
+pygraphviz
+./third-party/pyuppaal

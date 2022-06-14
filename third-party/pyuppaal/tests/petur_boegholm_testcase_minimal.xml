@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_1.dtd'><nta><declaration>//
+const int periodicThreads = 2;
+const int sporadicThreads = 2; //Threads
+const int totalThreads = periodicThreads + sporadicThreads;
+const int schedulerID = 0;
+
+//IDs for the differend kinds of threads
+typedef int[1,periodicThreads] PeriodicID;
+typedef int[periodicThreads + 1, totalThreads] SporadicID;
+typedef int[1,totalThreads] ThreadID;
+
+//Scheduler
+bool schedulable[ThreadID];
+bool fireable[SporadicID];
+//int threadPriority[ThreadID] = {2,1,3};
+int selectedThreadPriority = -1;
+
+chan fire[SporadicID];
+chan run[ThreadID];
+
+broadcast chan GO;
+
+bool synchronized = false;
+bool interruptWaiting = false;
+
+int running[totalThreads+1];
+void runScheduler(){
+	int i;
+	if (synchronized){
+		interruptWaiting = true;
+	} else {
+		for (i = 0; i &lt;= totalThreads; i++){
+			running[i] = 0;
+		}
+		running[schedulerID] = 1;
+	}
+}
+
+int monitorDepth = 0;
+void monitorEnter(){
+	synchronized = true;
+	monitorDepth++;
+}
+
+void monitorExit(){
+	monitorDepth--;
+	if (monitorDepth == 0){
+		if (interruptWaiting == true){
+			interruptWaiting = false;
+			runScheduler();
+		}
+		synchronized = false;
+	}
+}
+
+//Methods
+//TODO insert method channels here
+//chan methodExample[ThreadID];
+
+//TODO insert priorities here
+//int threadPriority[ThreadID] = {2,1,3};//
+chan chan_0001[ThreadID]; //java.lang.Math.min(II)I
+chan chan_0002[ThreadID]; //java.lang.Math.max(II)I
+chan chan_0004[ThreadID]; //lego.lib.Motor.setMotorPercentage(IZI)V
+chan chan_0005[ThreadID]; //lego.lib.Motor.dutyCyclePercentageToDutyCycle(I)I
+chan chan_0007[ThreadID]; //lego.rtsm.util.BoundedBuffer.isEmpty()Z
+chan chan_0008[ThreadID]; //lego.rtsm.util.BoundedBuffer.peek()I
+chan chan_0009[ThreadID]; //javax.scj.RealtimeSystem.currentTimeMicros()I
+chan chan_0010[ThreadID]; //lego.rtsm.util.BoundedBuffer.dequeue()V
+chan chan_0011[ThreadID]; //lego.rtsm.PeriodicMotorSpooler.add(I)V
+chan chan_0012[ThreadID]; //lego.rtsm.util.BoundedBuffer.enqueue(I)V
+chan chan_0013[ThreadID]; //lego.rtsm.PeriodicReadSensor.handleBrick()V
+chan chan_0014[ThreadID]; //lego.lib.Sensors.synchronizedReadSensors()V
+chan chan_0015[ThreadID]; //lego.lib.Sensors.getBufferedSensor(I)I
+chan chan_0016[ThreadID]; //lego.rtsm.PeriodicReadSensor.brickFound(I)V
+bool notImplementedMethods = false;
+bool loopAnnotationNotSet = false;
+
+int threadPriority[ThreadID] = {1, 2, 4, 3};</declaration><template><name x="5" y="5">Scheduler</name><declaration>int wcet = 1;
+int selectedThread = -1;
+
+clock executionTime;
+clock c;
+
+void selectThread(){
+	int i;	
+	selectedThread = -1;
+	selectedThreadPriority = -1;
+	for(i:ThreadID){
+		if(schedulable[i] &amp;&amp; threadPriority[i] &gt; selectedThreadPriority){
+			selectedThread = i;
+			selectedThreadPriority = threadPriority[i];
+		}
+	}
+	
+	for (i = 0; i &lt;= totalThreads; i++){
+		running[i] = 0;
+	}
+	running[selectedThread] = 1;
+}
+
+void idle(){
+	int i;
+	for (i = 0; i &lt;= totalThreads; i++){
+		running[i] = 0;
+	}
+	selectedThreadPriority = -1;
+}</declaration><location id="id0" x="104" y="-48"><committed/></location><location id="id1" x="296" y="-280"><committed/></location><location id="id2" x="296" y="-160"><name x="304" y="-184">Running</name><label kind="invariant" x="304" y="-152">executionTime &lt;= wcet &amp;&amp; 
+c &lt;= 240000 &amp;&amp;
+executionTime' == running[schedulerID]</label></location><location id="id3" x="296" y="-32"><committed/></location><init ref="id3"/><transition><source ref="id0"/><target ref="id0"/><nail x="128" y="0"/><nail x="64" y="0"/></transition><transition><source ref="id2"/><target ref="id0"/><label kind="guard" x="144" y="-80">c == 240000 &amp;&amp;
+running[1] == 0 &amp;&amp;
+running[2] == 0 &amp;&amp;
+running[3] == 0 &amp;&amp;
+running[4] == 0 &amp;&amp;
+schedulable[3] == false &amp;&amp;
+schedulable[4] == false</label></transition><transition><source ref="id1"/><target ref="id2"/><label kind="guard" x="48" y="-304">!exists(i:ThreadID)schedulable[i]</label><label kind="assignment" x="48" y="-280">idle(),
+executionTime = 0</label><nail x="32" y="-280"/><nail x="32" y="-160"/></transition><transition><source ref="id1"/><target ref="id2"/><label kind="guard" x="352" y="-304">exists(i:ThreadID)schedulable[i]</label><label kind="assignment" x="352" y="-280">selectThread(),
+executionTime = 0</label><nail x="568" y="-280"/><nail x="568" y="-160"/></transition><transition><source ref="id2"/><target ref="id1"/><label kind="guard" x="200" y="-224">executionTime == wcet &amp;&amp;
+c &lt; 240000</label></transition><transition><source ref="id3"/><target ref="id2"/><label kind="synchronisation" x="304" y="-88">GO!</label></transition></template><system>//PeriodicThreads(const PeriodicID  pID) = PeriodicThread(pID);
+//SporadicThreads(const SporadicID  sID) = SporadicThread(sID);
+//MethodExamples(const ThreadID tID) = MethodExample(tID);
+
+//PeriodicThread1 = PeriodicThread(1,23,23,0);//8
+//PeriodicThread2 = PeriodicThread(2,46,46,0);//8
+//SporadicThread1 = SporadicThread(3,13,13);//6
+
+// List one or more processes to be composed into a system.
+//system Scheduler, PeriodicThread1, PeriodicThread2, SporadicThread1, MethodExamples, PeriodicThread1Run, PeriodicThread2Run, SporadicThread1Run; //
+//Initialization
+Template_0001_threads(const ThreadID tID) = Template_0001(tID);
+Template_0002_threads(const ThreadID tID) = Template_0002(tID);
+Template_0004_threads(const ThreadID tID) = Template_0004(tID);
+Template_0005_threads(const ThreadID tID) = Template_0005(tID);
+Template_0007_threads(const ThreadID tID) = Template_0007(tID);
+Template_0008_threads(const ThreadID tID) = Template_0008(tID);
+Template_0009_threads(const ThreadID tID) = Template_0009(tID);
+Template_0010_threads(const ThreadID tID) = Template_0010(tID);
+Template_0011_threads(const ThreadID tID) = Template_0011(tID);
+Template_0012_threads(const ThreadID tID) = Template_0012(tID);
+Template_0013_threads(const ThreadID tID) = Template_0013(tID);
+Template_0014_threads(const ThreadID tID) = Template_0014(tID);
+Template_0015_threads(const ThreadID tID) = Template_0015(tID);
+Template_0016_threads(const ThreadID tID) = Template_0016(tID);
+//Sporadic Threads
+Template_0003_3 = Template_0003(3);
+SporadicThread3 = SporadicThread(3, 240000, 3600);
+Template_0003_4 = Template_0003(4);
+SporadicThread4 = SporadicThread(4, 240000, 3600);
+//Periodic Threads
+Template_0006_1 = Template_0006(1);
+PeriodicThread1 = PeriodicThread(1, 240000, 240000, 0);
+Template_0017_2 = Template_0017(2);
+PeriodicThread2 = PeriodicThread(2, 120000, 120000, 0);
+
+//
+system
+       Template_0001_threads, 
+       Template_0002_threads, 
+       Template_0004_threads, 
+       Template_0005_threads, 
+       Template_0007_threads, 
+       Template_0008_threads, 
+       Template_0009_threads, 
+       Template_0010_threads, 
+       Template_0011_threads, 
+       Template_0012_threads, 
+       Template_0013_threads, 
+       Template_0014_threads, 
+       Template_0015_threads, 
+       Template_0016_threads, 
+//Sporadic Threads
+       Template_0003_3, SporadicThread3, 
+       Template_0003_4, SporadicThread4, 
+//Periodic Threads
+       Template_0006_1, PeriodicThread1, 
+       Template_0017_2, PeriodicThread2, 
+//Scheduler
+       Scheduler;</system></nta>

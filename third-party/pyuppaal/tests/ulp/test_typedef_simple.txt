@@ -1,0 +1,5 @@
+typedef int id_t;
+
+typedef int[0, 4] id_t;
+typedef int[1+2, 4] id_t;
+typedef int[N - 1, 4] id_t;

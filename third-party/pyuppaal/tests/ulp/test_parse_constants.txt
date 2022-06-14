@@ -1,0 +1,9 @@
+const int a = 42;
+const int b = a + 1;
+const int c = b + 1;
+const int d = c + 1;
+
+typedef int[0,N-1] id_t;
+const id_t N = 5;
+
+id_t cur = 3;

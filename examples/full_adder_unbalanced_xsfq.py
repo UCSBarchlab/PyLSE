@@ -1,4 +1,5 @@
-# Reference: G. Tzimpragos et al., "Superconducting Computing with Alternating Logic Elements," ISCA 2021.
+# Reference: G. Tzimpragos et al.,
+# "Superconducting Computing with Alternating Logic Elements," ISCA 2021.
 
 from pylse import inp, inp_at, inspect, Simulation
 from pylse import c_inv, c, s, jtl, dro, split
@@ -77,15 +78,15 @@ def full_adder_unbalanced_xSFQ(a_p, a_n, b_p, b_n, cin_p, cin_n, clk):
 if __name__ == "__main__":
     # Create clock signal
     T = 80  # duration of a phase
-    clk = inp(delay=T, niter=4, name='clk')
+    clk = inp(start=T/2, period=T, n=4, name='clk')
 
     # Provided input: a=1, b=1, cin=0
-    a_p = inp(delay=0*T, niter=1, name='a_p')
-    a_n = inp(delay=1*T, niter=1, name='a_n')
-    b_p = inp(delay=0*T, niter=1, name='b_p')
-    b_n = inp(delay=1*T, niter=1, name='b_n')
-    cin_p = inp(delay=1*T, niter=1, name='cin_p')
-    cin_n = inp(delay=0*T, niter=1, name='cin_n')
+    a_p = inp_at(0*T, name='a_p')
+    a_n = inp_at(1*T, name='a_n')
+    b_p = inp_at(0*T, name='b_p')
+    b_n = inp_at(1*T, name='b_n')
+    cin_p = inp_at(1*T, name='cin_p')
+    cin_n = inp_at(0*T, name='cin_n')
 
     # Call full_adder_unbalanced_xSFQ()
     s_p, s_n, cout_p, cout_n = full_adder_unbalanced_xSFQ(a_p, a_n, b_p, b_n, cin_p, cin_n, clk)
@@ -100,4 +101,4 @@ if __name__ == "__main__":
     # Run simulation
     sim = Simulation()
     events = sim.simulate()
-    sim.display()
+    sim.plot()

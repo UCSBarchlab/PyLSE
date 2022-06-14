@@ -1,0 +1,9 @@
+int a;
+
+void foo()
+{
+	// Single line comment
+	/* Multi line comment
+		*/
+	a = a / a;
+}

@@ -1,0 +1,3 @@
+extern tests.test_pyuppaal_external_lattice.TestExternalLattice; 
+
+TestExternalLattice mylat;

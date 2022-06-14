@@ -1,0 +1,9 @@
+int a;
+bool b;
+bool b1, b2;
+clock c;
+chan d;
+urgent chan e;
+broadcast chan f;
+urgent broadcast chan g;
+

@@ -1,0 +1,5 @@
+void foo(int a, const bool b)
+{
+int c = 0;
+	while( c < 10) c++;
+}

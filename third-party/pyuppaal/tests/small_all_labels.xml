@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_1.dtd'><nta><declaration>// Place global declarations here.
+</declaration><template><name x="5" y="5">Template</name><declaration>// Place local declarations here.
+</declaration><location id="id0" x="16" y="64"><name x="32" y="48">name2</name><label kind="invariant" x="32" y="64">invariant2</label></location><location id="id1" x="16" y="-40"><name x="32" y="-64">name1</name><label kind="invariant" x="32" y="-48">invariant1</label><committed/></location><init ref="id1"/><transition><source ref="id1"/><target ref="id0"/><label kind="select" x="-44" y="-33">select</label><label kind="guard" x="-44" y="-18">guard</label><label kind="synchronisation" x="-44" y="-3">sync</label><label kind="assignment" x="-44" y="12">update</label></transition></template><system>// Place template instantiations here.
+Process = Template();
+
+// List one or more processes to be composed into a system.
+system Process;</system></nta>

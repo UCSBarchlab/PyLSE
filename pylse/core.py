@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List
+from typing import Dict, List, ClassVar
 from dataclasses import dataclass, field
 
 from .pylse_exceptions import PylseError
@@ -36,6 +36,8 @@ class Wire():
             existing_wire.name = Wire._new_wire_name()
         circuit._wire_by_name[new_name] = self
         self._name = new_name
+        if not Wire.is_temporary_wire_name(self._name):
+            self.observed_as = self._name
 
     @classmethod
     def _new_wire_name(cls) -> str:
@@ -44,7 +46,7 @@ class Wire():
         return n
 
     @classmethod
-    def _reset_id(cls):
+    def _reset_wire_id(cls):
         cls.next_wire_id = 0
 
     @staticmethod
@@ -59,9 +61,9 @@ class Wire():
         # Connect self <- other directionally
         from .circuit import _connect, working_circuit
         if self in working_circuit()._src_map:
-            raise PylseError(f"'{self.name}' is already connected to a node.")
+            raise PylseError(f"Wire '{self.name}' is already connected to a node.")
         if other in working_circuit()._dst_map:
-            raise PylseError(f"'{other.name}' is already connected to a node.")
+            raise PylseError(f"Wire '{other.name}' is already connected to a node.")
         _connect(other, self)
         return self
 
@@ -70,19 +72,11 @@ class Element(ABC):
     ''' Something that can react to input.
 
         A child of this class must define:
-            * firing_delay (float): generally, it is the time
-              between input arriving and an output pulse being emitted.
-              Child classes, like SFQ, might use this as the default when
-              no firing_delay is given for a particular firing transition.
-            * inputs (List[str])
-            * outputs (List[str])
-            * name (str)
+            * name: str
+            * inputs: List[str]
+            * outputs: List[str]
+            * handle_inputs: Callable[[Dict[str, bool]], float] -> Dict[str, List[float]]
     '''
-    @property
-    @abstractmethod
-    def firing_delay(self) -> float:
-        raise NotImplementedError
-
     @property
     @abstractmethod
     def inputs(self) -> List[str]:
@@ -118,6 +112,34 @@ class Element(ABC):
 
 @dataclass(frozen=True)
 class Node:
-    element: Element
+    _next_node_id: ClassVar[int] = 0
+
+    node_id: int = field(init=False, compare=True)
+    element: Element = field(compare=False)
     input_wires: List[Wire] = field(compare=False)
     output_wires: List[Wire] = field(compare=False)
+
+    def __post_init__(self):
+        object.__setattr__(self, 'node_id', Node._get_next_node_id())
+
+    @classmethod
+    def _get_next_node_id(cls):
+        nid = cls._next_node_id
+        cls._next_node_id += 1
+        return nid
+
+    @classmethod
+    def _reset_node_id(cls):
+        cls._next_node_id = 0
+
+    def get_output_wire(self, name):
+        """ Get the Wire object associated with the output name.
+        :param name: name of the output on the Element.
+
+        E.g. if you have an Element with outputs ['l', 'r'],
+        and a n=Node(..., output_wires[Wire('_1'), Wire('_2')]),
+        calling n.get_output_wire('l') will return the object that
+        was created with Wire('_1').
+        """
+        ix = self.element.outputs.index(name)
+        return self.output_wires[ix]

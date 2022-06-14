@@ -1,0 +1,11 @@
+extern DBMFederation;
+extern DBMClock;
+
+DBMFederation dbm;
+
+DBMClock dbm.x;
+DBMClock dbm.c;
+
+DBMClock dbm.y[10];
+
+DBMClock dbm.z[10][20];

@@ -1,4 +1,3 @@
-
 def inspect(wire, name):
     ''' Observe a wire in the simulation, labelling it 'name' in the plotted waveform
 

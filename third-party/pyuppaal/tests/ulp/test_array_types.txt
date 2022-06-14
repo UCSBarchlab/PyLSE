@@ -1,0 +1,4 @@
+typedef int[1,3] myint;
+int a[myint];
+int b[int[2,4]];
+int c[const int[3,4]];

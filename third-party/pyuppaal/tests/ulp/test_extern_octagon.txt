@@ -1,0 +1,5 @@
+extern ApronOctagon;
+ApronOctagon oct;
+
+oct.intvar i;
+oct.floatvar f;

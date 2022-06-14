@@ -1,0 +1,8 @@
+void foo(int a, const bool b)
+{
+int c = 7;
+	for( c = 0; c < 10;c++) 
+	{
+		a = b + a * c;
+	}
+}

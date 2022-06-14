@@ -1,0 +1,23 @@
+python-pyuppaal (0.4) quantal; urgency=low
+
+  * New release.
+
+ -- Mads Chr. Olesen <mads@mchro.dk>  Mon, 08 Apr 2013 14:12:16 +0200
+
+python-pyuppaal (0.3) maverick; urgency=low
+
+  * New release, support for parsing more of uppaal c-code
+
+ -- Mads Chr. Olesen <mads@mchro.dk>  Mon, 03 Jan 2011 15:39:58 +0100
+
+python-pyuppaal (0.2) lucid; urgency=low
+
+  * New release.
+
+ -- Mads Chr. Olesen <mads@mchro.dk>  Sun, 05 Sep 2010 20:04:15 +0200
+
+python-pyuppaal (0.1) karmic; urgency=low
+
+  * Initial release.
+
+ -- Mads Chr. Olesen <mads@mchro.dk>  Tue, 16 Feb 2010 11:48:24 +0100

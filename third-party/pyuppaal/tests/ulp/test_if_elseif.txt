@@ -1,0 +1,9 @@
+void foo() {
+    if (4) {
+        bar();
+    } else if (3) {
+        baz();
+    } else {
+        bam();
+    }
+}

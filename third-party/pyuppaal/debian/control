@@ -1,0 +1,24 @@
+Source: python-pyuppaal
+Section: python
+Priority: extra
+Build-Depends: cdbs (>= 0.4.43),
+ debhelper (>= 6),
+ python,
+ python-central (>= 0.6.11),
+ python-distutils-extra (>= 2.10)
+Maintainer: Mads Chr. Olesen <mchro@cs.aau.dk>
+Standards-Version: 3.8.2
+XS-Python-Version: current
+
+Package: python-pyuppaal
+Architecture: all
+XB-Python-Version: ${python:Versions}
+Depends: ${misc:Depends},
+ ${python:Depends},
+ python-gobject-2,
+ python-ply,
+ python-pygraphviz,
+ python-cairo,
+ python-gtk2
+Description: Python library for manipulating UPPAAL xml files
+ Can currently import, export and layout models.

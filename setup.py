@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = 'pylse',
-    version = '0.0.0',
+    version = '0.1.0',
     packages = find_packages(),
     description = 'Pulse-Transfer Level eDSL for the design, simulation, and verification of superconductor electronics',
     author = 'UCSBarchlab',
@@ -23,5 +23,5 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)',
         'Topic :: System :: Hardware'
-        ]
+        ],
 )

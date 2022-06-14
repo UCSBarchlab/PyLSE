@@ -1,0 +1,5 @@
+void isTaskSched() { x = ( x == 5 ? 1 : 0);}
+
+void policy_FPS() {
+  place = (is_preemptive(rid)? 0:1);
+}

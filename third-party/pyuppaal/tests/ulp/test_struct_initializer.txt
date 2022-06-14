@@ -1,0 +1,14 @@
+typedef   int[0,7] tstatus_t;
+const     tstatus_t DORMANT = 0;
+
+typedef struct {
+  int pri;
+  tstatus_t     status;
+  int[0,rid_n]  pid;
+} tstat_t;
+
+tstat_t tstat[tid_t] = {
+{ 0, DORMANT, 0},
+{ 5, DORMANT, 0},
+{ 3, DORMANT, 0}
+};

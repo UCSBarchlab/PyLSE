@@ -1,0 +1,26 @@
+chan take, release;		// Take and release torch
+//int[0,1] L;		// The side the torch is on
+int L;		// The side the torch is on
+clock time;		// Global time
+
+clock y1;
+clock y2;
+clock y3;
+clock y4;
+
+int lalala = 3;
+
+const int fastest = 5;
+const int fast    = 10;
+const int slow    = 20;
+const int slowest = 25;
+
+const int N = 2;
+
+bool msg[N][N];
+
+bool lock = false;
+bool lock2 = true;
+
+
+//system Viking1, Viking2, Viking3, Viking4, Torch;

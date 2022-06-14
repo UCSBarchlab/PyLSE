@@ -1,0 +1,13 @@
+int a;
+int b;
+
+void foo()
+{
+	a++;
+	++b;
+	--a;
+ 	//++a * b++ / a++; //Broken but valid in UPPAAL (tm)
+	a = ++a * b++;
+	a = ++a * b++ * a++;
+	a = ++a * b++ / b++;
+}

@@ -1,34 +1,45 @@
-# Reference: G. Tzimpragos et al., "Superconducting Computing with Alternating Logic Elements," ISCA 2021.
+# Reference: G. Tzimpragos et al.,
+# "Superconducting Computing with Alternating Logic Elements," ISCA 2021.
 
-from pylse import inp, inp_at, inspect, Simulation
-from pylse import c_inv, c, s, jtl, dro, split
+import pylse
+from helpers import BaseTest, sim_and_gen, pulse_in_period
 
-
-def fa(x, y):
-    """
-        First-arrival cell based on an inverted C-element.
-        Inputs buffered with JTL for better flux transmission.
-    """
-    return c_inv(jtl(x), jtl(y))
-
-
-def la(x, y):
-    """
-        Last-arrival cell based on a C-element.
-        Inputs buffered with JTL for better flux transmission.
-    """
-    return c(jtl(x), jtl(y))
+import unittest
 
 
 def full_adder_balanced_xSFQ(a_p, a_n, b_p, b_n, cin_p, cin_n, clk):
-    """
-        Pipelined (dual-rail) xSFQ full adder -- Fig. 12
+    """ Pipelined (dual-rail) xSFQ full adder -- Fig. 12 of
+        G. Tzimpragos et al., "Superconducting Computing with Alternating Logic Elements," ISCA 2021.
+
         Gate IOs buffered with JTL for better flux transmission.
         Fan_outs of two or more require splitters.
     """
+    # These are all helpers to make it easy to ensure
+    # we use the same delay numbers as the paper.
+
+    def jtl(*args):
+        return pylse.jtl(*args, firing_delay=5.7)
+
+    def fa(x, y):
+        """ First-arrival cell based on an inverted C-element.
+            Inputs buffered with JTL for better flux transmission.
+        """
+        return pylse.c_inv(jtl(x), jtl(y), firing_delay=9.0)
+
+    def la(x, y):
+        """ Last-arrival cell based on a C-element.
+            Inputs buffered with JTL for better flux transmission.
+        """
+        return pylse.c(jtl(x), jtl(y), firing_delay=8.0)
+
+    def s(x):
+        return pylse.s(x, firing_delay=4.3)
+
+    def dro(*args):
+        return pylse.dro(*args, firing_delay=5.1)
 
     # Create a clock tree
-    clks = split(clk, n=10)
+    clks = pylse.split(clk, n=10, firing_delay=4.3)
 
     a_p0, a_p1 = s(a_p)
     a_n0, a_n1 = s(a_n)
@@ -68,30 +79,40 @@ def full_adder_balanced_xSFQ(a_p, a_n, b_p, b_n, cin_p, cin_n, clk):
     return s_p, s_n, cout_p, cout_n
 
 
+class TestAdders(BaseTest):
+    def test_full_adder_xsfq(self):
+        # Create clock signal
+        t = 100  # duration of a phase
+        clk = pylse.inp(start=2, period=t, n=4, name='clk')
+        offset = 10
+
+        # Provided input: a=1, b=1, cin=0
+        a_p = pylse.inp_at(offset, name='a_p')
+        a_n = pylse.inp_at(t+offset, name='a_n')
+        b_p = pylse.inp_at(offset, name='b_p')
+        b_n = pylse.inp_at(t+offset, name='b_n')
+        cin_p = pylse.inp(t+offset, name='cin_p')
+        cin_n = pylse.inp(offset, name='cin_n')
+
+        # Call full_adder_balanced_xSFQ()
+        s_p, s_n, cout_p, cout_n = full_adder_balanced_xSFQ(a_p, a_n, b_p, b_n, cin_p, cin_n, clk)
+
+        # Probe outputs
+        # Expected output: s=0, cout=1
+        pylse.inspect(s_p, 's_p')
+        pylse.inspect(s_n, 's_n')
+        pylse.inspect(cout_p, 'cout_p')
+        pylse.inspect(cout_n, 'cout_n')
+
+        events, _ta = sim_and_gen("full_adder_xsfq", call_verify=False, exact=False)
+        self.assertTrue(pulse_in_period(2, t, events['cout_p']))  # 224.3ish
+        self.assertFalse(pulse_in_period(3, t, events['cout_p']))
+        self.assertTrue(pulse_in_period(2, t, events['s_n']))  # 220.0ish
+        self.assertFalse(pulse_in_period(3, t, events['s_n']))
+        self.assertTrue(pulse_in_period(3, t, events['s_p']))  # 320.0ish
+        self.assertFalse(pulse_in_period(2, t, events['s_p']))
+        self.assertTrue(pulse_in_period(3, t, events['cout_n']))  # 324.3ish
+        self.assertFalse(pulse_in_period(2, t, events['cout_n']))
+
 if __name__ == "__main__":
-    # Create clock signal
-    T = 50  # duration of a phase
-    clk = inp(delay=T, niter=4, name='clk')
-
-    # Provided input: a=1, b=1, cin=0
-    a_p = inp(delay=0*T, niter=1, name='a_p')
-    a_n = inp(delay=1*T, niter=1, name='a_n')
-    b_p = inp(delay=0*T, niter=1, name='b_p')
-    b_n = inp(delay=1*T, niter=1, name='b_n')
-    cin_p = inp(delay=1*T, niter=1, name='cin_p')
-    cin_n = inp(delay=0*T, niter=1, name='cin_n')
-
-    # Call full_adder_balanced_xSFQ()
-    s_p, s_n, cout_p, cout_n = full_adder_balanced_xSFQ(a_p, a_n, b_p, b_n, cin_p, cin_n, clk)
-
-    # Probe outputs
-    # Expected output: s=0, cout=1
-    inspect(s_p, 's_p')
-    inspect(s_n, 's_n')
-    inspect(cout_p, 'cout_p')
-    inspect(cout_n, 'cout_n')
-
-    # Run simulation
-    sim = Simulation()
-    events = sim.simulate()
-    sim.display()
+    unittest.main()

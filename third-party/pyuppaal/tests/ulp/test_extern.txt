@@ -1,0 +1,9 @@
+extern AbstractCache;
+
+AbstractCache cache;
+
+typedef int[0, 4] id_t;
+
+id_t myid;
+
+int lalala;

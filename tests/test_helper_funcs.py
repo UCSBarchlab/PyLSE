@@ -9,7 +9,7 @@ class TestHelpers(unittest.TestCase):
         working_circuit().reset()
 
     def test_inspect_adds_visible_event(self):
-        in0 = inp(delay=1.2)
+        in0 = inp(1.2)
         inspect(in0, 'in0')
         sim = Simulation()
         events = sim.simulate()

@@ -1,0 +1,4 @@
+extern WideningIntRange = WideningIntRange(1, 2, 3, 9);
+extern foobarbaz = foo.bar.baz(1, 2, 3, 9);
+
+WideningIntRange x;

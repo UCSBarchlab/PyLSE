@@ -1,0 +1,23 @@
+void foo(int a, const bool b)
+{
+	int c;
+	int d = 3;
+	return d;
+}
+
+int bar(int &a, int &b)
+{
+	int c = a;
+	a = b;
+	b = c;
+}
+
+bool bar2()
+{
+	return 10;
+}
+
+void bar3()
+{
+	return;
+}

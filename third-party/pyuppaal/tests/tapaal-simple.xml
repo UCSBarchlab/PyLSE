@@ -1,0 +1,29 @@
+<nta>
+<declaration>chan T0_deg2;
+broadcast chan T1_single;
+broadcast chan T2_single;
+broadcast chan T3_single;
+broadcast chan T4_single;
+chan T5_deg2;
+chan T6_deg2;
+chan T7_deg2;
+bool lock= false;
+</declaration>
+<template>
+<name x="5" y="5">Lock</name>
+<declaration>clock x;</declaration>
+<location id="a103" >
+<name>P4</name>
+<label kind="invariant">x &lt;= 5</label>
+</location>
+
+<transition>
+<source ref="a103" />
+<target ref="a103" />
+<label kind="guard">lock == 0</label>
+<label kind="synchronisation">T6_deg2?</label>
+<label kind="assignment"></label>
+</transition>
+</template>
+<system>system Lock;</system>
+</nta>

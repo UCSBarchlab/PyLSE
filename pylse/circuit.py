@@ -14,7 +14,24 @@ class Circuit:
 
     def reset(self):
         self._initialize()
-        Wire._reset_id()
+        Wire._reset_wire_id()
+        Node._reset_node_id()
+
+    def __iter__(self):
+        src_nodes = [] if self._source_wire is None else [self.src_map[self._source_wire]]
+        # src_nodes = self.dst_map[self._source_wire]  # Do this to hide the implicit _Source node
+        seen = set()
+
+        while src_nodes:
+            src_node, src_nodes = src_nodes[0], src_nodes[1:]
+            if src_node in seen:
+                continue
+            seen.add(src_node)
+            yield(src_node)
+
+            for w in src_node.output_wires:
+                ns = self.dst_map[w]
+                src_nodes.extend(ns)
 
     def _initialize(self):
         self.nodes: Set[Node] = set()
@@ -25,6 +42,23 @@ class Circuit:
         self._wire_by_name: Dict[str, Wire] = {}
         self._src_map: Dict[Wire, Node] = {}
         self._dst_map: Dict[Wire, List[Node]] = defaultdict(list)
+
+    # Hide both of these since they should only be updated internally
+    @property
+    def src_map(self):
+        return self._src_map
+
+    @src_map.setter
+    def src_map(self, _):
+        raise PylseError("Cannot explicitly set the circuit's src_map")
+
+    @property
+    def dst_map(self):
+        return self._dst_map
+
+    @dst_map.setter
+    def dst_map(self, _):
+        raise PylseError("Cannot explicitly set the circuit's dst_map")
 
     def node_subset(self, typ):
         return set(node for node in self.nodes if isinstance(node.element, typ))
@@ -77,15 +111,15 @@ class Circuit:
 
         for i in node.input_wires:
             # Wire coming out of InPad can be connected to multiple nodes (which must be InGen only)
-            if i is not self.source_wire() and i in self._dst_map:
+            if i is not self.source_wire() and i in self.dst_map:
                 raise PylseError(
-                    f"'{i.name}' is already connected to a node. "
+                    f"Wire '{i.name}' is already connected to a node. "
                     f"Did you want to use a splitter to split '{i.name}'?"
                 )
 
         for i in node.input_wires:
             if i not in self.wires:
-                raise PylseError(f"'{str(i)}' is not an existing wire.")
+                raise PylseError(f"Wire '{i.name}' ({str(i)}) is not an existing wire.")
 
         if self.source_wire() in node.input_wires and not isinstance(node.element, InGen):
             raise PylseError('Pseudo-element "InPad" can only be connected to "InGen" elements')
@@ -98,16 +132,29 @@ class Circuit:
         for w in outputs:
             self._src_map[w] = n
         for w in inputs:
+            # Checking that w is not already connected to something is done in sanity_check_node()
             self._dst_map[w].append(n)
 
     def add_wire(self, wire: Wire):
         self.wires.add(wire)
 
+    def is_sink(self, wire: Wire):
+        return not self.dst_map[wire]
+
+    @property
+    def outputs(self) -> Set[Wire]:
+        # NOTE: the following should be equivalent:
+        # return {w for w in self.wires if self.is_sink(w)}
+        outs = set()
+        for n in self.nodes:
+            outs.update({w for w in n.output_wires if self.is_sink(w)})
+        return outs
+
 
 _singleton_circuit = Circuit()
 
 
-def working_circuit(circuit=None):
+def working_circuit(circuit=None) -> Circuit:
     if circuit:
         return circuit
     return _singleton_circuit
@@ -198,18 +245,24 @@ def inp_at(*times, name=None):
     return out
 
 
-def inp(delay=0.0, niter=1, name=None):
+def inp(start=0.0, period=0.0, n=1, name=None):
     ''' Create an input pulse for some number of iterations/delay.
 
-    :param delay: delay between successive pulse generations
-    :param niter: number of pulses to generate
+    :param start: time at which to start the pulses (default 0.0)
+    :param period: delay between successive pulse generations (default 0.0)
+    :param n: number of pulses to generate (default 1)
     :param name: name to given the resulting input wire
     :return: wire where input pulses will come from
 
-    For example, given `input(delay=1.3, niter=3)`, pulses
-    will be produced at times 1.3, 2.6, and 3.9.
+    For example, given `input(start=5.0, period=1.3, n=3)`, pulses
+    will be produced at times 5.0, 6.3, and 7.6.
+
+    Without any arguments, it produces a single pulse at time 0.0.
     '''
-    times = [delay*n for n in range(1, niter+1)]
+    if n > 1 and period == 0.0:
+        raise PylseError("Period must be non-zero if niter > 1")
+
+    times = [start + period*n for n in range(n)]
     return inp_at(*times, name=name)
 
 

@@ -1,0 +1,8 @@
+void foo(int a, const bool b)
+{
+int c = 0;
+	do 
+	{
+		c++;
+	} while (c < 10);
+}
